@@ -2,7 +2,6 @@ from django.core.management.base import BaseCommand, CommandError
 from django.core.management.commands.makemessages import Command as MMCommand
 from django.core.exceptions import ImproperlyConfigured
 from django.core.management import call_command
-from optparse import make_option
 from path import path
 import os    
 
@@ -11,6 +10,9 @@ class Command(BaseCommand):
     """
     Do the RAT magic, move all translation files from the RAT_LOCALES_ROOT to the
     actual applications, run makemessages, move them back. 
+    
+    You can use your standard makemessages arguments (--extensions,...) for this
+    command.
     """
     option_list = MMCommand.option_list
     

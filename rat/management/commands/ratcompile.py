@@ -1,6 +1,5 @@
 from django.core.management.base import BaseCommand, CommandError
 from django.core.management.commands.compilemessages import Command as CMCommand
-from django.core.exceptions import ImproperlyConfigured
 from django.core.management import call_command
 from django.conf import settings
 from rat import LazyLocalePaths
@@ -8,8 +7,7 @@ from rat import LazyLocalePaths
 
 class Command(BaseCommand):
     """
-    Do the RAT magic, move all translation files from the RAT_LOCALES_ROOT to the
-    actual applications, run makemessages, move them back. 
+    Compile the language files under RAT management.
     """
     option_list = CMCommand.option_list
     
