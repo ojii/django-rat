@@ -11,7 +11,7 @@ class Command(BaseCommand):
     Do the RAT magic, move all translation files from the RAT_LOCALES_ROOT to the
     actual applications, run makemessages, move them back. 
     
-    You can use your standard makemessages arguments (--extensions,...) for this
+    You can use your standard makemessages arguments (--extension,...) for this
     command.
     """
     option_list = MMCommand.option_list
