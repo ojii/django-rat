@@ -44,25 +44,26 @@ class Command(BaseCommand):
         if not localedir.isdir():
             print 'no locales found, ignoring'
             return # no locale, not interesting
-        # remove 'new' language files
+        rat_app = self.locales_root.joinpath(name, 'locale')
+        if not rat_app.exists():
+            self.init_app(localedir, rat_app, name)
+        # remove 'new' language files ( egg -> void )
         for lang in localedir.dirs():
             po = lang.joinpath('LC_MESSAGES', 'django.po')
             mo = lang.joinpath('LC_MESSAGES', 'django.mo')
-            if po.exists():
-                po.remove()
-            if mo.exists():
-                mo.remove()
-        # move 'old' language files
-        rat_app = self.locales_root.joinpath(name)
+            # check if we have this locale in rat
+            if rat_app.joinpath(lang, 'LC_MESSAGES', 'django.po').exists():
+                if po.exists():
+                    po.remove()
+                if mo.exists():
+                    mo.remove()
+        # move 'old' language files ( rat -> egg )
         if not rat_app.exists():
-            rat_app.mkdir()
+            rat_app.makedirs()
         for lang in rat_app.dirs():
-            app_lang_dir = localedir.joinpath(lang.basename())
-            app_lc_dir = app_lang_dir.joinpath('LC_MESSAGES')
-            if not app_lang_dir.exists():
-                app_lang_dir.mkdir()
+            app_lc_dir = localedir.joinpath(lang.basename(), 'LC_MESSAGES')
             if not app_lc_dir.exists():
-                app_lc_dir.mkdir()
+                app_lc_dir.makedirs()
             po = lang.joinpath('LC_MESSAGES', 'django.po')
             mo = lang.joinpath('LC_MESSAGES', 'django.mo')
             if po.exists():
@@ -76,16 +77,29 @@ class Command(BaseCommand):
         except CommandError, e:
             print e.message
             return
-        # move the 'made' language files back
+        # move the 'made' language files back ( egg -> rat )
         for lang in localedir.dirs():
             po = lang.joinpath('LC_MESSAGES', 'django.po')
             mo = lang.joinpath('LC_MESSAGES', 'django.mo')
-            rat_lang_dir = rat_app.joinpath(lang.basename())
-            rat_lc_dir = rat_lang_dir.joinpath('LC_MESSAGES')
-            if not rat_lang_dir.exists():
-                rat_lang_dir.mkdir()
+            rat_lc_dir = rat_app.joinpath(lang.basename(), 'LC_MESSAGES')
             if not rat_lc_dir.exists():
-                rat_lc_dir.mkdir()
+                rat_lc_dir.makedirs()
+            if po.exists():
+                po.move(rat_lc_dir)
+            if mo.exists():
+                mo.move(rat_lc_dir)
+                
+    def init_app(self, localedir, rat_app, name):
+        """
+        Initialize an app for ratting. This means we copy the current language
+        files from the egg into rat
+        """
+        for lang in localedir.dirs():
+            po = lang.joinpath('LC_MESSAGES', 'django.po')
+            mo = lang.joinpath('LC_MESSAGES', 'django.mo')
+            rat_lc_dir = rat_app.joinpath(lang.basename(), 'LC_MESSAGES')
+            if not rat_lc_dir.exists():
+                rat_lc_dir.makedirs()
             if po.exists():
                 po.move(rat_lc_dir)
             if mo.exists():
