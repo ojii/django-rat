@@ -34,7 +34,10 @@ class Command(BaseCommand):
         print 'done'
             
     def handle_app(self, name, options):
-        appdir = path(__import__(name).__file__).dirname()
+        appdir = os.path.dirname((__import__(name).__file__))
+        if not os.path.exists(os.path.join(appdir, 'locale')):
+            print 'no locales in %s, ignoring...' % name
+            return
         os.chdir(appdir) # so makemessages knows where to do it's magic
         try:
             call_command('makemessages', **options) # run it!
